@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fire Building Competition Scorer</title>
+    <meta name="theme-color" content="#1f342e" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Fire Scorer" />
+    <link rel="manifest" href="./fire-competition-score.webmanifest" />
+    <link rel="icon" href="./fire-score-icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./fire-score-icon.svg" />
+    <style>
+      :root {
+        --bg-1: #f3efe3;
+        --bg-2: #fefcf7;
+        --panel: rgba(255, 253, 246, 0.92);
+        --border: rgba(50, 33, 18, 0.15);
+        --text: #2a2118;
+        --muted: #6f5a47;
+        --accent: #b55020;
+        --accent-strong: #8f3f18;
+        --ok: #1f7a4f;
+        --warn: #944f11;
+        --danger: #9b2d30;
+        --shadow: 0 14px 44px rgba(76, 42, 17, 0.14);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Manrope", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 18% 14%, rgba(200, 116, 47, 0.2), transparent 42%),
+          radial-gradient(circle at 82% 4%, rgba(88, 127, 65, 0.2), transparent 38%),
+          linear-gradient(160deg, var(--bg-1), var(--bg-2));
+        min-height: 100vh;
+      }
+
+      .app {
+        width: min(1120px, 100%);
+        margin: 0 auto;
+        padding: 20px 14px 26px;
+        display: grid;
+        gap: 14px;
+      }
+
+      .hero {
+        border-radius: 16px;
+        padding: 16px;
+        background: linear-gradient(145deg, rgba(42, 56, 45, 0.95), rgba(14, 31, 37, 0.95));
+        color: #ecf5f1;
+        border: 1px solid rgba(178, 226, 184, 0.18);
+        box-shadow: var(--shadow);
+      }
+
+      .hero h1 {
+        margin: 4px 0 6px;
+        font-size: clamp(1.35rem, 3.7vw, 2.05rem);
+      }
+
+      .eyebrow {
+        margin: 0;
+        color: #c6e2d5;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .hero p {
+        margin: 0;
+        color: #ddebe4;
+      }
+
+      .layout {
+        display: grid;
+        gap: 14px;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 14px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(4px);
+      }
+
+      .card h2 {
+        margin: 0 0 4px;
+        font-size: 1.18rem;
+      }
+
+      .help {
+        margin: 0 0 12px;
+        color: var(--muted);
+        font-size: 0.93rem;
+      }
+
+      .timer-display {
+        border-radius: 12px;
+        border: 1px solid rgba(178, 80, 32, 0.28);
+        background: rgba(255, 241, 229, 0.65);
+        color: #4f1f0f;
+        font-size: clamp(2rem, 9vw, 3.2rem);
+        text-align: center;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        padding: 12px;
+        margin-bottom: 10px;
+      }
+
+      .button-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .btn {
+        border: 1px solid transparent;
+        border-radius: 10px;
+        padding: 10px 13px;
+        font-weight: 700;
+        font-size: 0.92rem;
+        cursor: pointer;
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .btn-primary:hover {
+        background: var(--accent-strong);
+      }
+
+      .btn-neutral {
+        background: #f9f0e4;
+        border-color: rgba(72, 42, 18, 0.25);
+        color: #513420;
+      }
+
+      .btn-danger {
+        background: #fbe8e8;
+        border-color: rgba(155, 45, 48, 0.24);
+        color: #7b2325;
+      }
+
+      .capture-box {
+        margin-top: 10px;
+        border: 1px dashed rgba(61, 128, 80, 0.38);
+        background: rgba(233, 251, 237, 0.68);
+        border-radius: 10px;
+        padding: 8px 10px;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .capture-box span {
+        color: #31573d;
+        font-size: 0.9rem;
+      }
+
+      .capture-box strong {
+        color: #1f7a4f;
+        font-size: 1.06rem;
+      }
+
+      form {
+        display: grid;
+        gap: 12px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 10px;
+      }
+
+      .grid.two {
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      }
+
+      .grid.three {
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #473325;
+      }
+
+      input[type="text"],
+      input[type="number"] {
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid rgba(82, 50, 25, 0.26);
+        padding: 9px 10px;
+        font: inherit;
+        color: #2e241c;
+        background: rgba(255, 255, 255, 0.87);
+      }
+
+      input[type="checkbox"] {
+        accent-color: #39794f;
+      }
+
+      .checkbox-field {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid rgba(56, 102, 67, 0.28);
+        border-radius: 10px;
+        padding: 10px;
+        background: rgba(238, 250, 243, 0.7);
+      }
+
+      .criteria {
+        display: grid;
+        gap: 10px;
+      }
+
+      .criterion {
+        border: 1px solid rgba(72, 48, 24, 0.2);
+        background: rgba(255, 249, 241, 0.86);
+        border-radius: 12px;
+        padding: 10px;
+      }
+
+      .criterion p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-weight: 500;
+        font-size: 0.84rem;
+      }
+
+      .criterion-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .criterion-head strong {
+        font-size: 1rem;
+        color: #4c260f;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        margin: 7px 0 0;
+        accent-color: var(--accent);
+      }
+
+      .total-strip {
+        border-radius: 10px;
+        border: 1px solid rgba(181, 80, 32, 0.28);
+        background: rgba(255, 240, 227, 0.76);
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .total-strip span {
+        color: #784124;
+        font-size: 0.84rem;
+        display: block;
+      }
+
+      .total-strip strong {
+        font-size: 1.15rem;
+      }
+
+      .status {
+        min-height: 1.3em;
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--ok);
+      }
+
+      .status.warn {
+        color: var(--warn);
+      }
+
+      .status.error {
+        color: var(--danger);
+      }
+
+      .results-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .results-head h2 {
+        margin: 0;
+      }
+
+      .results-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .tables {
+        margin-top: 12px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .table-card {
+        border: 1px solid rgba(72, 48, 24, 0.2);
+        border-radius: 12px;
+        padding: 10px;
+        background: rgba(255, 250, 245, 0.85);
+      }
+
+      .table-card h3 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.86rem;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid rgba(74, 51, 31, 0.16);
+        padding: 7px 6px;
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      th {
+        color: #5b4432;
+        font-weight: 700;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+
+      .small-note {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .empty {
+        color: var(--muted);
+        font-style: italic;
+      }
+
+      @media (min-width: 940px) {
+        .layout {
+          grid-template-columns: 330px 1fr;
+          align-items: start;
+        }
+
+        .tables {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <p class="eyebrow">Outdoor Tool</p>
+        <h1>Fire Building Competition Scorer</h1>
+        <p>
+          Use this page to time each team, rate key skills, and keep results saved on your device.
+        </p>
+      </header>
+
+      <section class="layout">
+        <article class="card">
+          <h2>Stopwatch</h2>
+          <p class="help">Great for time-to-flame tracking or tie-breaks.</p>
+          <div id="timer-display" class="timer-display" aria-live="polite">00:00.0</div>
+          <div class="button-row">
+            <button id="start-timer" class="btn btn-primary" type="button">Start</button>
+            <button id="stop-timer" class="btn btn-neutral" type="button">Stop</button>
+            <button id="reset-timer" class="btn btn-danger" type="button">Reset</button>
+            <button id="capture-time" class="btn btn-neutral" type="button">Capture Time</button>
+          </div>
+          <div class="capture-box">
+            <span>Captured time for this score</span>
+            <strong id="captured-time">00:00.0</strong>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Score Entry</h2>
+          <p class="help">
+            Suggested criteria included: build quality, teamwork, fuel prep, ignition control, and safety/tool handling.
+          </p>
+          <form id="score-form">
+            <div class="grid two">
+              <label>
+                Team Name
+                <input id="team-name" type="text" maxlength="40" placeholder="Team 1" required />
+              </label>
+              <label>
+                Round
+                <input id="round-number" type="number" min="1" max="99" value="1" />
+              </label>
+            </div>
+
+            <div class="criteria">
+              <label class="criterion">
+                <div class="criterion-head">
+                  <span>Fire Build Quality</span>
+                  <strong id="build-quality-value">7</strong>
+                </div>
+                <input id="build-quality" type="range" min="1" max="10" value="7" data-value-id="build-quality-value" />
+                <p>Structure choice and layout stability.</p>
+              </label>
+
+              <label class="criterion">
+                <div class="criterion-head">
+                  <span>Teamwork and Communication</span>
+                  <strong id="teamwork-value">7</strong>
+                </div>
+                <input id="teamwork" type="range" min="1" max="10" value="7" data-value-id="teamwork-value" />
+                <p>Clear roles, shared effort, and respectful coordination.</p>
+              </label>
+
+              <label class="criterion">
+                <div class="criterion-head">
+                  <span>Tinder and Kindling Prep</span>
+                  <strong id="fuel-prep-value">7</strong>
+                </div>
+                <input id="fuel-prep" type="range" min="1" max="10" value="7" data-value-id="fuel-prep-value" />
+                <p>Dry materials, correct sizing, and staged fuel progression.</p>
+              </label>
+
+              <label class="criterion">
+                <div class="criterion-head">
+                  <span>Ignition and Flame Control</span>
+                  <strong id="ignition-value">7</strong>
+                </div>
+                <input id="ignition" type="range" min="1" max="10" value="7" data-value-id="ignition-value" />
+                <p>Lights efficiently and nurtures flame without smothering.</p>
+              </label>
+
+              <label class="criterion">
+                <div class="criterion-head">
+                  <span>Safety and Tool Handling</span>
+                  <strong id="safety-value">7</strong>
+                </div>
+                <input id="safety" type="range" min="1" max="10" value="7" data-value-id="safety-value" />
+                <p>Safe spacing, stable motions, and proper awareness around tools/fire.</p>
+              </label>
+            </div>
+
+            <div class="grid three">
+              <label>
+                Bonus (0-5)
+                <input id="bonus-points" type="number" min="0" max="5" value="0" />
+              </label>
+              <label>
+                Penalties (0-5)
+                <input id="penalty-points" type="number" min="0" max="5" value="0" />
+              </label>
+              <label class="checkbox-field">
+                <input id="sustained-flame" type="checkbox" />
+                +5 for flame sustained for 2 minutes
+              </label>
+            </div>
+
+            <div class="total-strip">
+              <div>
+                <span>Total Score</span>
+                <strong id="total-score">35 / 60</strong>
+              </div>
+              <div>
+                <span>Time recorded</span>
+                <strong id="score-time">00:00.0</strong>
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button class="btn btn-primary" type="submit">Save Team Result</button>
+              <button id="reset-form" class="btn btn-neutral" type="button">Reset Form</button>
+            </div>
+            <p id="status-message" class="status" aria-live="polite"></p>
+          </form>
+        </article>
+      </section>
+
+      <section class="card">
+        <div class="results-head">
+          <h2>Saved Results</h2>
+          <div class="results-actions">
+            <button id="export-csv" class="btn btn-neutral" type="button">Export CSV</button>
+            <button id="export-json" class="btn btn-neutral" type="button">Export JSON</button>
+            <button id="import-json-btn" class="btn btn-neutral" type="button">Import JSON</button>
+            <button id="clear-results" class="btn btn-danger" type="button">Clear All</button>
+            <input id="import-json-input" type="file" accept=".json,application/json" hidden />
+          </div>
+        </div>
+
+        <div class="tables">
+          <article class="table-card">
+            <h3>Team Leaderboard (Best Score)</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>Team</th>
+                    <th>Attempts</th>
+                    <th>Best</th>
+                    <th>Average</th>
+                    <th>Best Time</th>
+                  </tr>
+                </thead>
+                <tbody id="leaderboard-body"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="table-card">
+            <h3>Round History</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Team</th>
+                    <th>Round</th>
+                    <th>Score</th>
+                    <th>Time</th>
+                    <th>Saved</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="history-body"></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+
+        <p class="small-note">
+          Data stays on this browser/device using local storage. Export JSON as a backup before leaving the site.
+        </p>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        const STORAGE_KEY = "campfireCompetitionScores.v1";
+        const MAX_POINTS = 60;
+
+        const timerDisplay = document.getElementById("timer-display");
+        const capturedTimeLabel = document.getElementById("captured-time");
+        const scoreTimeLabel = document.getElementById("score-time");
+        const totalScoreLabel = document.getElementById("total-score");
+        const statusMessage = document.getElementById("status-message");
+        const form = document.getElementById("score-form");
+        const leaderboardBody = document.getElementById("leaderboard-body");
+        const historyBody = document.getElementById("history-body");
+        const importInput = document.getElementById("import-json-input");
+
+        const sliders = [
+          document.getElementById("build-quality"),
+          document.getElementById("teamwork"),
+          document.getElementById("fuel-prep"),
+          document.getElementById("ignition"),
+          document.getElementById("safety")
+        ];
+
+        const bonusInput = document.getElementById("bonus-points");
+        const penaltyInput = document.getElementById("penalty-points");
+        const sustainedInput = document.getElementById("sustained-flame");
+        const teamNameInput = document.getElementById("team-name");
+        const roundInput = document.getElementById("round-number");
+
+        let scores = loadScores();
+        let timerId = null;
+        let elapsedMs = 0;
+        let timerStart = 0;
+        let capturedTimeMs = 0;
+
+        bindEvents();
+        refreshScoreSummary();
+        renderTables();
+        updateTimerLabels();
+
+        function bindEvents() {
+          document.getElementById("start-timer").addEventListener("click", startTimer);
+          document.getElementById("stop-timer").addEventListener("click", stopTimer);
+          document.getElementById("reset-timer").addEventListener("click", resetTimer);
+          document.getElementById("capture-time").addEventListener("click", captureTime);
+          document.getElementById("reset-form").addEventListener("click", resetForm);
+
+          sliders.forEach((slider) => {
+            slider.addEventListener("input", () => {
+              const output = document.getElementById(slider.dataset.valueId);
+              if (output) {
+                output.textContent = slider.value;
+              }
+              refreshScoreSummary();
+            });
+          });
+
+          [bonusInput, penaltyInput].forEach((input) => {
+            input.addEventListener("input", () => {
+              input.value = clampInt(input.value, 0, 5);
+              refreshScoreSummary();
+            });
+          });
+
+          sustainedInput.addEventListener("change", refreshScoreSummary);
+
+          form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            saveResult();
+          });
+
+          document.getElementById("export-csv").addEventListener("click", exportCsv);
+          document.getElementById("export-json").addEventListener("click", exportJson);
+          document.getElementById("import-json-btn").addEventListener("click", () => importInput.click());
+          document.getElementById("clear-results").addEventListener("click", clearAllResults);
+          importInput.addEventListener("change", importJsonFile);
+
+          historyBody.addEventListener("click", (event) => {
+            const button = event.target.closest("button[data-remove-id]");
+            if (!button) {
+              return;
+            }
+            removeScore(button.dataset.removeId);
+          });
+        }
+
+        function startTimer() {
+          if (timerId !== null) {
+            return;
+          }
+          timerStart = Date.now() - elapsedMs;
+          timerId = window.setInterval(() => {
+            elapsedMs = Date.now() - timerStart;
+            updateTimerLabels();
+          }, 100);
+          setStatus("Timer started.", "warn");
+        }
+
+        function stopTimer() {
+          if (timerId === null) {
+            return;
+          }
+          clearInterval(timerId);
+          timerId = null;
+          elapsedMs = Date.now() - timerStart;
+          updateTimerLabels();
+          setStatus("Timer stopped.", "warn");
+        }
+
+        function resetTimer() {
+          if (timerId !== null) {
+            clearInterval(timerId);
+            timerId = null;
+          }
+          elapsedMs = 0;
+          capturedTimeMs = 0;
+          updateTimerLabels();
+          refreshScoreSummary();
+          setStatus("Timer reset.", "warn");
+        }
+
+        function captureTime() {
+          capturedTimeMs = elapsedMs;
+          updateTimerLabels();
+          refreshScoreSummary();
+          setStatus("Time captured for this score.", "warn");
+        }
+
+        function refreshScoreSummary() {
+          const ratingTotal = sliders.reduce((sum, slider) => sum + Number(slider.value), 0);
+          const bonus = clampInt(bonusInput.value, 0, 5);
+          const penalties = clampInt(penaltyInput.value, 0, 5);
+          const sustained = sustainedInput.checked ? 5 : 0;
+          const total = Math.max(0, ratingTotal + bonus + sustained - penalties);
+          totalScoreLabel.textContent = total + " / " + MAX_POINTS;
+          scoreTimeLabel.textContent = formatDuration(getTimeForScore());
+        }
+
+        function getTimeForScore() {
+          if (capturedTimeMs > 0) {
+            return capturedTimeMs;
+          }
+          return elapsedMs;
+        }
+
+        function updateTimerLabels() {
+          timerDisplay.textContent = formatDuration(elapsedMs);
+          capturedTimeLabel.textContent = formatDuration(capturedTimeMs);
+          scoreTimeLabel.textContent = formatDuration(getTimeForScore());
+        }
+
+        function saveResult() {
+          const team = teamNameInput.value.trim();
+          if (!team) {
+            setStatus("Enter a team name before saving.", "error");
+            teamNameInput.focus();
+            return;
+          }
+
+          const round = clampInt(roundInput.value, 1, 99);
+          roundInput.value = round;
+          bonusInput.value = clampInt(bonusInput.value, 0, 5);
+          penaltyInput.value = clampInt(penaltyInput.value, 0, 5);
+
+          const entry = {
+            id: "score_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7),
+            team: team,
+            round: round,
+            timeMs: getTimeForScore(),
+            buildQuality: Number(document.getElementById("build-quality").value),
+            teamwork: Number(document.getElementById("teamwork").value),
+            fuelPrep: Number(document.getElementById("fuel-prep").value),
+            ignition: Number(document.getElementById("ignition").value),
+            safety: Number(document.getElementById("safety").value),
+            bonus: clampInt(bonusInput.value, 0, 5),
+            penalties: clampInt(penaltyInput.value, 0, 5),
+            sustainedFlame: sustainedInput.checked,
+            total: 0,
+            createdAt: new Date().toISOString()
+          };
+
+          entry.total = Math.max(
+            0,
+            entry.buildQuality +
+              entry.teamwork +
+              entry.fuelPrep +
+              entry.ignition +
+              entry.safety +
+              entry.bonus +
+              (entry.sustainedFlame ? 5 : 0) -
+              entry.penalties
+          );
+
+          scores.push(entry);
+          persistScores();
+          renderTables();
+
+          capturedTimeMs = 0;
+          updateTimerLabels();
+          setStatus("Saved result for " + team + " (score " + entry.total + ").", "ok");
+          teamNameInput.value = "";
+          teamNameInput.focus();
+        }
+
+        function resetForm() {
+          sliders.forEach((slider) => {
+            slider.value = 7;
+            const output = document.getElementById(slider.dataset.valueId);
+            if (output) {
+              output.textContent = "7";
+            }
+          });
+          bonusInput.value = 0;
+          penaltyInput.value = 0;
+          sustainedInput.checked = false;
+          teamNameInput.value = "";
+          capturedTimeMs = 0;
+          updateTimerLabels();
+          refreshScoreSummary();
+          setStatus("Form reset.", "warn");
+        }
+
+        function renderTables() {
+          renderLeaderboard();
+          renderHistory();
+        }
+
+        function renderLeaderboard() {
+          if (!scores.length) {
+            leaderboardBody.innerHTML =
+              '<tr><td colspan="6" class="empty">No results saved yet.</td></tr>';
+            return;
+          }
+
+          const groups = {};
+          scores.forEach((score) => {
+            const key = score.team.trim().toLowerCase();
+            if (!groups[key]) {
+              groups[key] = {
+                team: score.team.trim(),
+                attempts: 0,
+                totalScore: 0,
+                bestScore: -1,
+                bestTimeMs: Number.POSITIVE_INFINITY
+              };
+            }
+            const group = groups[key];
+            group.attempts += 1;
+            group.totalScore += score.total;
+            if (score.total > group.bestScore) {
+              group.bestScore = score.total;
+            }
+            if (score.timeMs > 0 && score.timeMs < group.bestTimeMs) {
+              group.bestTimeMs = score.timeMs;
+            }
+          });
+
+          const rows = Object.values(groups).map((group) => ({
+            team: group.team,
+            attempts: group.attempts,
+            best: group.bestScore,
+            avg: group.totalScore / group.attempts,
+            bestTimeMs: Number.isFinite(group.bestTimeMs) ? group.bestTimeMs : 0
+          }));
+
+          rows.sort((a, b) => {
+            if (b.best !== a.best) {
+              return b.best - a.best;
+            }
+            if (a.bestTimeMs === 0 && b.bestTimeMs !== 0) {
+              return 1;
+            }
+            if (b.bestTimeMs === 0 && a.bestTimeMs !== 0) {
+              return -1;
+            }
+            return a.bestTimeMs - b.bestTimeMs;
+          });
+
+          leaderboardBody.innerHTML = rows
+            .map(
+              (row, index) =>
+                "<tr>" +
+                "<td>" + (index + 1) + "</td>" +
+                "<td>" + escapeHtml(row.team) + "</td>" +
+                "<td>" + row.attempts + "</td>" +
+                "<td>" + row.best + "</td>" +
+                "<td>" + row.avg.toFixed(1) + "</td>" +
+                "<td>" + (row.bestTimeMs ? formatDuration(row.bestTimeMs) : "-") + "</td>" +
+                "</tr>"
+            )
+            .join("");
+        }
+
+        function renderHistory() {
+          if (!scores.length) {
+            historyBody.innerHTML = '<tr><td colspan="6" class="empty">No rounds recorded yet.</td></tr>';
+            return;
+          }
+
+          const rows = scores
+            .slice()
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+          historyBody.innerHTML = rows
+            .map((row) => {
+              const savedAt = new Date(row.createdAt);
+              return (
+                "<tr>" +
+                "<td>" + escapeHtml(row.team) + "</td>" +
+                "<td>" + row.round + "</td>" +
+                "<td>" + row.total + "</td>" +
+                "<td>" + (row.timeMs ? formatDuration(row.timeMs) : "-") + "</td>" +
+                "<td>" + formatShortDate(savedAt) + "</td>" +
+                '<td><button class="btn btn-danger" type="button" data-remove-id="' + row.id + '">Delete</button></td>' +
+                "</tr>"
+              );
+            })
+            .join("");
+        }
+
+        function removeScore(id) {
+          const target = scores.find((score) => score.id === id);
+          if (!target) {
+            return;
+          }
+          if (!window.confirm("Delete score for " + target.team + " (round " + target.round + ")?")) {
+            return;
+          }
+          scores = scores.filter((score) => score.id !== id);
+          persistScores();
+          renderTables();
+          setStatus("Deleted one score entry.", "warn");
+        }
+
+        function clearAllResults() {
+          if (!scores.length) {
+            setStatus("No saved results to clear.", "warn");
+            return;
+          }
+          if (!window.confirm("Clear all saved results for this event?")) {
+            return;
+          }
+          scores = [];
+          persistScores();
+          renderTables();
+          setStatus("All results cleared.", "warn");
+        }
+
+        function exportCsv() {
+          if (!scores.length) {
+            setStatus("No data to export.", "warn");
+            return;
+          }
+
+          const headers = [
+            "team",
+            "round",
+            "total",
+            "time",
+            "buildQuality",
+            "teamwork",
+            "fuelPrep",
+            "ignition",
+            "safety",
+            "bonus",
+            "penalties",
+            "sustainedFlame",
+            "savedAt"
+          ];
+
+          const lines = [headers.join(",")];
+          scores.forEach((score) => {
+            const row = [
+              score.team,
+              score.round,
+              score.total,
+              formatDuration(score.timeMs || 0),
+              score.buildQuality,
+              score.teamwork,
+              score.fuelPrep,
+              score.ignition,
+              score.safety,
+              score.bonus,
+              score.penalties,
+              score.sustainedFlame ? "yes" : "no",
+              score.createdAt
+            ];
+            lines.push(row.map(csvEscape).join(","));
+          });
+
+          downloadFile("fire-competition-results.csv", lines.join("\n"), "text/csv");
+          setStatus("CSV exported.", "ok");
+        }
+
+        function exportJson() {
+          if (!scores.length) {
+            setStatus("No data to export.", "warn");
+            return;
+          }
+          downloadFile(
+            "fire-competition-results.json",
+            JSON.stringify(scores, null, 2),
+            "application/json"
+          );
+          setStatus("JSON exported.", "ok");
+        }
+
+        function importJsonFile(event) {
+          const file = event.target.files && event.target.files[0];
+          importInput.value = "";
+          if (!file) {
+            return;
+          }
+
+          const reader = new FileReader();
+          reader.onload = function (loadEvent) {
+            try {
+              const parsed = JSON.parse(String(loadEvent.target.result || "[]"));
+              if (!Array.isArray(parsed)) {
+                throw new Error("JSON must contain an array of score objects.");
+              }
+
+              const normalized = parsed
+                .filter((item) => item && typeof item === "object")
+                .map(normalizeImportedScore)
+                .filter(Boolean);
+
+              if (!normalized.length) {
+                setStatus("No valid score entries found in that file.", "error");
+                return;
+              }
+
+              const merge = window.confirm(
+                "Press OK to merge imported scores with current results. Press Cancel to replace current results."
+              );
+
+              scores = merge ? scores.concat(normalized) : normalized;
+              persistScores();
+              renderTables();
+              setStatus("Imported " + normalized.length + " score entries.", "ok");
+            } catch (error) {
+              setStatus("Import failed: " + error.message, "error");
+            }
+          };
+
+          reader.readAsText(file);
+        }
+
+        function normalizeImportedScore(raw) {
+          const team = typeof raw.team === "string" ? raw.team.trim() : "";
+          if (!team) {
+            return null;
+          }
+
+          const round = clampInt(raw.round, 1, 99);
+          const entry = {
+            id: typeof raw.id === "string" ? raw.id : "score_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7),
+            team: team,
+            round: round,
+            timeMs: Math.max(0, Number(raw.timeMs) || 0),
+            buildQuality: clampInt(raw.buildQuality, 1, 10),
+            teamwork: clampInt(raw.teamwork, 1, 10),
+            fuelPrep: clampInt(raw.fuelPrep, 1, 10),
+            ignition: clampInt(raw.ignition, 1, 10),
+            safety: clampInt(raw.safety, 1, 10),
+            bonus: clampInt(raw.bonus, 0, 5),
+            penalties: clampInt(raw.penalties, 0, 5),
+            sustainedFlame: Boolean(raw.sustainedFlame),
+            total: 0,
+            createdAt: safeIsoDate(raw.createdAt)
+          };
+
+          entry.total = Math.max(
+            0,
+            entry.buildQuality +
+              entry.teamwork +
+              entry.fuelPrep +
+              entry.ignition +
+              entry.safety +
+              entry.bonus +
+              (entry.sustainedFlame ? 5 : 0) -
+              entry.penalties
+          );
+
+          return entry;
+        }
+
+        function loadScores() {
+          try {
+            const raw = window.localStorage.getItem(STORAGE_KEY);
+            if (!raw) {
+              return [];
+            }
+            const parsed = JSON.parse(raw);
+            if (!Array.isArray(parsed)) {
+              return [];
+            }
+            return parsed.map(normalizeImportedScore).filter(Boolean);
+          } catch (error) {
+            console.error("Unable to load saved scores", error);
+            return [];
+          }
+        }
+
+        function persistScores() {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(scores));
+        }
+
+        function setStatus(message, type) {
+          statusMessage.textContent = message;
+          statusMessage.className = "status";
+          if (type === "warn") {
+            statusMessage.classList.add("warn");
+          } else if (type === "error") {
+            statusMessage.classList.add("error");
+          }
+        }
+
+        function formatDuration(ms) {
+          const safe = Math.max(0, Number(ms) || 0);
+          const minutes = Math.floor(safe / 60000);
+          const seconds = Math.floor((safe % 60000) / 1000);
+          const tenths = Math.floor((safe % 1000) / 100);
+          return pad(minutes) + ":" + pad(seconds) + "." + tenths;
+        }
+
+        function formatShortDate(date) {
+          if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+            return "-";
+          }
+          const month = pad(date.getMonth() + 1);
+          const day = pad(date.getDate());
+          const hour = pad(date.getHours());
+          const minute = pad(date.getMinutes());
+          return month + "/" + day + " " + hour + ":" + minute;
+        }
+
+        function safeIsoDate(input) {
+          const parsed = input ? new Date(input) : new Date();
+          if (Number.isNaN(parsed.getTime())) {
+            return new Date().toISOString();
+          }
+          return parsed.toISOString();
+        }
+
+        function pad(value) {
+          return String(value).padStart(2, "0");
+        }
+
+        function clampInt(value, min, max) {
+          const number = Number(value);
+          if (!Number.isFinite(number)) {
+            return min;
+          }
+          return Math.min(max, Math.max(min, Math.round(number)));
+        }
+
+        function csvEscape(value) {
+          const text = String(value ?? "");
+          if (/[",\n]/.test(text)) {
+            return '"' + text.replace(/"/g, '""') + '"';
+          }
+          return text;
+        }
+
+        function downloadFile(filename, content, mimeType) {
+          const blob = new Blob([content], { type: mimeType });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          URL.revokeObjectURL(link.href);
+        }
+
+        function escapeHtml(text) {
+          return String(text)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+        }
+      })();
+    </script>
+    <script>
+      (function () {
+        if (!("serviceWorker" in navigator)) {
+          return;
+        }
+
+        window.addEventListener("load", function () {
+          navigator.serviceWorker
+            .register("./fire-competition-score-sw.js")
+            .catch(function (error) {
+              console.warn("Service worker registration failed:", error);
+            });
+        });
+      })();
+    </script>
+  </body>
+</html>

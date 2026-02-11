@@ -1,0 +1,18 @@
+{
+  "name": "Fire Building Competition Scorer",
+  "short_name": "Fire Scorer",
+  "description": "Offline team scoring tool for fire building competitions.",
+  "start_url": "./fire-competition-score.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3efe3",
+  "theme_color": "#1f342e",
+  "icons": [
+    {
+      "src": "./fire-score-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
