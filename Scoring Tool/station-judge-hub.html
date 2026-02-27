@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Judge Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Sora:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./station-judge-hub.css" />
+  </head>
+  <body>
+    <div class="bg-decor" aria-hidden="true">
+      <span class="orb orb-a"></span>
+      <span class="orb orb-b"></span>
+      <span class="orb orb-c"></span>
+    </div>
+
+    <main class="shell">
+      <header class="hero panel">
+        <p class="eyebrow">Wilderness Survival Competition - CSR4</p>
+        <h1>Judge Station Hub</h1>
+        <p>
+          Configure teams once per device, score any station, and compile final totals at the end.
+        </p>
+        <div class="hero-meta">
+          <span id="hero-judge">Judge: -</span>
+          <span id="hero-team-key">Team Key: -</span>
+        </div>
+      </header>
+
+      <nav class="top-nav panel" aria-label="Main">
+        <button class="nav-btn is-active" data-view="home-view" type="button">Home</button>
+        <button class="nav-btn" data-view="station-view" type="button">Station Scoring</button>
+        <button class="nav-btn" data-view="compile-view" type="button">Final Compile</button>
+      </nav>
+
+      <section id="status-banner" class="status hidden" role="status" aria-live="polite"></section>
+
+      <section id="home-view" class="view panel">
+        <div class="section-head">
+          <h2>Event Setup</h2>
+          <p>Each judge device stores its own scores locally. Use the same team names on every device.</p>
+        </div>
+
+        <form id="setup-form" class="setup-grid">
+          <label class="field">
+            <span>Judge Name</span>
+            <input id="judge-name" type="text" maxlength="60" placeholder="Judge A" />
+          </label>
+
+          <label class="field full">
+            <span>Teams (one per line)</span>
+            <textarea
+              id="teams-input"
+              rows="8"
+              placeholder="Team Alpha&#10;Team Bravo&#10;Team Charlie"
+            ></textarea>
+          </label>
+
+          <div class="inline-meta full">
+            <div>
+              <p class="meta-label">Team Count</p>
+              <strong id="team-count">0</strong>
+            </div>
+            <div>
+              <p class="meta-label">Team Key</p>
+              <strong id="team-key">-</strong>
+            </div>
+          </div>
+
+          <div class="actions full">
+            <button class="btn btn-primary" type="submit">Save Setup</button>
+            <button id="clear-all-btn" class="btn btn-danger" type="button">Clear This Device Data</button>
+          </div>
+        </form>
+
+       
+      </section>
+
+      <section id="station-view" class="view panel hidden">
+        <div class="section-head">
+          <h2>Station Scoring</h2>
+          <p>
+            Score out of 10 points per station: Skill (0-6), Teamwork (0-2), Safety (0-2). Fire uses build and
+            burn timers for skill. Tripod skill decreases by 1 every 2 minutes of build time. BB Gun uses
+            targets hit.
+          </p>
+        </div>
+
+        <div class="station-toolbar">
+          <div id="station-tabs" class="tabs" role="tablist" aria-label="Stations"></div>
+          <button id="copy-station-summary" class="btn btn-ghost" type="button">Copy Station Summary</button>
+        </div>
+
+        <div class="station-grid">
+          <article class="panel inset">
+            <h3 id="station-title">Fire (String Burn)</h3>
+            <p id="station-objective" class="muted"></p>
+
+            <label class="field">
+              <span>Team</span>
+              <select id="score-team"></select>
+            </label>
+
+            <div id="fire-timers-box" class="fire-timers hidden">
+              <div class="timer-box">
+                <p class="meta-label">Fire Build Timer</p>
+                <strong id="fire-build-display">00:00.0</strong>
+                <div class="timer-actions">
+                  <button id="fire-build-start" class="btn btn-primary" type="button">Start</button>
+                  <button id="fire-build-stop" class="btn btn-ghost" type="button">Stop</button>
+                  <button id="fire-build-reset" class="btn btn-danger" type="button">Reset</button>
+                  <button id="fire-build-capture" class="btn btn-ghost" type="button">Capture</button>
+                </div>
+                <p class="muted small">Captured build time: <strong id="fire-build-captured">00:00.0</strong></p>
+              </div>
+
+              <div class="timer-box">
+                <p class="meta-label">Ignition To String Break Timer</p>
+                <strong id="fire-burn-display">00:00.0</strong>
+                <div class="timer-actions">
+                  <button id="fire-burn-start" class="btn btn-primary" type="button">Start</button>
+                  <button id="fire-burn-stop" class="btn btn-ghost" type="button">Stop</button>
+                  <button id="fire-burn-reset" class="btn btn-danger" type="button">Reset</button>
+                  <button id="fire-burn-capture" class="btn btn-ghost" type="button">Capture</button>
+                </div>
+                <p class="muted small">Captured burn time: <strong id="fire-burn-captured">00:00.0</strong></p>
+              </div>
+
+              <article class="notice">
+                <h3>Fire Skill Timing Rule</h3>
+                <div class="setup-grid">
+                  <label class="field">
+                    <span>6-point total time (seconds)</span>
+                    <input id="fire-full-skill-seconds" type="number" min="10" step="5" value="240" />
+                  </label>
+                  <label class="field">
+                    <span>0-point total time (seconds)</span>
+                    <input id="fire-zero-skill-seconds" type="number" min="30" step="5" value="600" />
+                  </label>
+                </div>
+                <p class="muted small">
+                  Fire skill is auto-calculated from combined build + burn time. Faster total time gives higher
+                  skill points.
+                </p>
+              </article>
+            </div>
+
+            <div id="single-timer-box" class="timer-box hidden">
+              <p class="meta-label">Station Timer</p>
+              <strong id="timer-display">00:00.0</strong>
+              <div class="timer-actions">
+                <button id="timer-start" class="btn btn-primary" type="button">Start</button>
+                <button id="timer-stop" class="btn btn-ghost" type="button">Stop</button>
+                <button id="timer-reset" class="btn btn-danger" type="button">Reset</button>
+                <button id="timer-capture" class="btn btn-ghost" type="button">Capture</button>
+              </div>
+              <p class="muted small">Captured time for this team: <strong id="captured-time">00:00.0</strong></p>
+            </div>
+
+            <div id="timing-note" class="notice hidden">
+              <p>This station is not timed for scoring. Focus is aim skill, teamwork, and safety.</p>
+            </div>
+
+            <form id="score-form" class="score-form">
+              <div id="range-targets-box" class="notice hidden">
+                <h3>BB Gun Aim Input</h3>
+                <div class="setup-grid">
+                  <label class="field">
+                    <span>Targets Hit</span>
+                    <input id="range-targets-hit" type="number" min="0" step="1" value="0" />
+                  </label>
+                  <label class="field">
+                    <span>Total Targets Available</span>
+                    <input id="range-targets-possible" type="number" min="1" step="1" value="10" />
+                  </label>
+                </div>
+                <p class="muted small">Aim skill points (0-6) are auto-calculated from hit ratio.</p>
+              </div>
+
+              <label class="field">
+                <span id="skill-label">Skill Outcome (0-6)</span>
+                <div class="range-row">
+                  <input id="score-skill" type="range" min="0" max="6" value="4" />
+                  <strong id="score-skill-value">4</strong>
+                </div>
+              </label>
+
+              <label class="field">
+                <span>Teamwork (0-2)</span>
+                <div class="range-row">
+                  <input id="score-teamwork" type="range" min="0" max="2" value="1" />
+                  <strong id="score-teamwork-value">1</strong>
+                </div>
+              </label>
+
+              <label class="field">
+                <span>Safety (0-2)</span>
+                <div class="range-row">
+                  <input id="score-safety" type="range" min="0" max="2" value="1" />
+                  <strong id="score-safety-value">1</strong>
+                </div>
+              </label>
+
+              <div class="total-card">
+                <span>Total</span>
+                <strong id="score-total">6 / 10</strong>
+              </div>
+
+              <div class="actions">
+                <button class="btn btn-primary" type="submit">Save Team Score</button>
+              </div>
+            </form>
+          </article>
+
+          <article class="panel inset">
+            <h3>Current Station Results</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Team</th>
+                    <th id="detail-header">Detail</th>
+                    <th>Skill</th>
+                    <th>Teamwork</th>
+                    <th>Safety</th>
+                    <th>Total</th>
+                    <th>Time</th>
+                    <th>Judge</th>
+                  </tr>
+                </thead>
+                <tbody id="station-results-body"></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="compile-view" class="view panel hidden">
+        <div class="section-head">
+          <h2>Final Compile</h2>
+          <p>
+            Use this page at the end to enter each station's final scores and times so you can rank teams overall.
+            BB Gun time is marked N/A and not included in tie-break time.
+          </p>
+        </div>
+
+        <div class="compile-actions">
+          <button id="fill-local-scores" class="btn btn-ghost" type="button">
+            Fill Compile From Saved Device Scores
+          </button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>Fire Score</th>
+                <th>Fire Time</th>
+                <th>Range Score</th>
+                <th>Range Time</th>
+                <th>Tripod Score</th>
+                <th>Tripod Time</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="compile-body"></tbody>
+          </table>
+        </div>
+
+        <article class="panel inset">
+          <h3>Overall Ranking</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Team</th>
+                  <th>Total Score</th>
+                  <th>Tie-Break Time (Fire + Tripod)</th>
+                </tr>
+              </thead>
+              <tbody id="ranking-body"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script src="./station-judge-hub.js"></script>
+  </body>
+</html>
